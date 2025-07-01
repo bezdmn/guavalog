@@ -40,12 +40,8 @@ public class Producer {
     }
 
     public MemorySegment getSegment(char ab) {
-        if (ab == 'a') {
-            return this.segmentA;
-        }  else if (ab == 'b') {
-            return this.segmentB;
-        }
-
+        if (ab == 'a') return this.segmentA;
+        else if (ab == 'b') return this.segmentB;
         return null;
     }
 }
