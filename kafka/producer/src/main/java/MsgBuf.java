@@ -1,5 +1,3 @@
-package com.guavalog.kafka.producer;
-
 import java.lang.foreign.*;
 import java.util.stream.Stream;
 
