@@ -12,5 +12,6 @@
     </parent>
 
     <artifactId>kafka-producer</artifactId>
+    <packaging>jar</packaging>
 
 </project>
