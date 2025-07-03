@@ -7,60 +7,61 @@
 
 */
 
+import java.lang.foreign.MemorySegment;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class UdpQueue implements BlockingQueue {
+public class UdpQueue implements BlockingQueue<MemorySegment> {
 
     @Override
-    public boolean add(Object o) {
+    public boolean add(MemorySegment memorySegment) {
         return false;
     }
 
     @Override
-    public boolean offer(Object o) {
+    public boolean offer(MemorySegment memorySegment) {
         return false;
     }
 
     @Override
-    public Object remove() {
+    public MemorySegment remove() {
         return null;
     }
 
     @Override
-    public Object poll() {
+    public MemorySegment poll() {
         return null;
     }
 
     @Override
-    public Object element() {
+    public MemorySegment element() {
         return null;
     }
 
     @Override
-    public Object peek() {
+    public MemorySegment peek() {
         return null;
     }
 
     @Override
-    public void put(Object o) throws InterruptedException {
+    public void put(MemorySegment memorySegment) throws InterruptedException {
 
     }
 
     @Override
-    public boolean offer(Object o, long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean offer(MemorySegment memorySegment, long timeout, TimeUnit unit) throws InterruptedException {
         return false;
     }
 
     @Override
-    public Object take() throws InterruptedException {
+    public MemorySegment take() throws InterruptedException {
         return null;
     }
 
     @Override
-    public Object poll(long timeout, TimeUnit unit) throws InterruptedException {
+    public MemorySegment poll(long timeout, TimeUnit unit) throws InterruptedException {
         return null;
     }
 
@@ -75,28 +76,28 @@ public class UdpQueue implements BlockingQueue {
     }
 
     @Override
-    public boolean addAll(Collection c) {
+    public boolean containsAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends MemorySegment> c) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
         return false;
     }
 
     @Override
     public void clear() {
 
-    }
-
-    @Override
-    public boolean retainAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean containsAll(Collection c) {
-        return false;
     }
 
     @Override
@@ -115,7 +116,7 @@ public class UdpQueue implements BlockingQueue {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<MemorySegment> iterator() {
         return null;
     }
 
@@ -125,17 +126,17 @@ public class UdpQueue implements BlockingQueue {
     }
 
     @Override
-    public Object[] toArray(Object[] a) {
-        return new Object[0];
+    public <T> T[] toArray(T[] a) {
+        return null;
     }
 
     @Override
-    public int drainTo(Collection c) {
+    public int drainTo(Collection<? super MemorySegment> c) {
         return 0;
     }
 
     @Override
-    public int drainTo(Collection c, int maxElements) {
+    public int drainTo(Collection<? super MemorySegment> c, int maxElements) {
         return 0;
     }
 }
