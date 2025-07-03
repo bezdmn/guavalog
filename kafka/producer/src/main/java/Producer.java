@@ -1,6 +1,6 @@
 public class Producer {
-    private MsgBuf bufA;
-    private MsgBuf bufB;
+    private UdpBuffer bufA;
+    private UdpBuffer bufB;
 
     public static void main(String[] args) {
         Producer kafkaProducer = new Producer();
@@ -13,7 +13,7 @@ public class Producer {
     }
 
     public void allocate() {
-        this.bufA = new MsgBuf();
-        this.bufB = new MsgBuf();
+        this.bufA = new UdpBuffer();
+        this.bufB = new UdpBuffer();
     }
 }
