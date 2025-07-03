@@ -1,19 +1,17 @@
 public class Producer {
-    private UdpBuffer bufA;
-    private UdpBuffer bufB;
+    private UdpQueue queue;
+    private Read reader;
+    private Write writer;
 
     public static void main(String[] args) {
         Producer kafkaProducer = new Producer();
 
-        try {
-            kafkaProducer.allocate();
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        kafkaProducer.allocate();
     }
 
     public void allocate() {
-        this.bufA = new UdpBuffer();
-        this.bufB = new UdpBuffer();
+        this.queue = new UdpQueue();
+        this.reader = new Read();
+        this.writer = new Write();
     }
 }

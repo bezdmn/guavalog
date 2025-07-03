@@ -3,14 +3,13 @@ import java.util.stream.Stream;
 
 public class UdpBuffer {
     private final MemorySegment segment;
+    private boolean full;
 
     static final int MTU_SIZE = 1500;
 
     // IPv4 header + UDP header + data as specified by RFC 760 and 768
     static final SequenceLayout UDP_LAYOUT
-
             = MemoryLayout.sequenceLayout(64,
-
                 MemoryLayout.structLayout(
 
                         // IPv4 HEADER - 20 bytes
@@ -46,6 +45,8 @@ public class UdpBuffer {
     );
 
     public UdpBuffer() throws RuntimeException {
+        this.full = false;
+
         try (Arena arena = Arena.ofShared()) {
             this.segment = arena.allocate(UDP_LAYOUT, 1);
         } catch (Exception e) {
@@ -53,12 +54,21 @@ public class UdpBuffer {
         }
     }
 
-    public int size() {
+    public boolean isFull() {
+        return full;
+    }
+
+    public void setFull() {
+        this.full = true;
+    }
+
+    public int capacity() {
         assert UDP_LAYOUT.elementCount() <= Integer.MAX_VALUE;
         return (int) UDP_LAYOUT.elementCount();
     }
 
     public Stream<MemorySegment> stream() {
+        this.full = false;
         return segment.asReadOnly().elements(UDP_LAYOUT);
     }
 }
