@@ -8,9 +8,9 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
     private final DatagramBuffer bufferB;
 
     /**
-     * A double buffered ("ping-pong buffer") blocking queue for transient storage
-     * of UDP packets. The queue is backed by two arrays with Datagram type and is
-     * meant to be used by threads that might block.
+     * A bounded, double buffered ("ping-pong buffer") blocking queue for transient
+     * storage of UDP packets. The queue is backed by two arrays with Datagram type
+     * and is built to be used by threads that might block.
      *
      * @param size sizes of the underlying arrays
      */
