@@ -1,12 +1,10 @@
 public class DatagramBuffer {
     private final Datagram[] buf;
     private int pointer;
-    private boolean emptying;
 
     public DatagramBuffer(int size) {
         this.buf = new Datagram[size];
         this.pointer = 0;
-        this.emptying = false;
     }
 
     public boolean add(Datagram d) {
@@ -16,17 +14,12 @@ public class DatagramBuffer {
             return true;
         }
 
-        emptying = true;
         return false;
     }
 
     public Datagram take() {
-        if (pointer > 0 && emptying) {
+        if (pointer > 0) {
             pointer--;
-
-            if (pointer == 0) {
-                emptying = false;
-            }
 
             return buf[pointer];
         }
@@ -34,12 +27,11 @@ public class DatagramBuffer {
         return null;
     }
 
-    public boolean isEmptying() {
-        return emptying;
+    public void clear() {
+        pointer = 0;
     }
 
     public boolean isFull() {
         return pointer == buf.length;
     }
-
 }

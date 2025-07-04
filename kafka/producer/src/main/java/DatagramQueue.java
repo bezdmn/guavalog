@@ -1,34 +1,73 @@
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DatagramQueue implements BlockingQueue<Datagram> {
-    private final DatagramBuffer bufferA;
-    private final DatagramBuffer bufferB;
+    private final DatagramBuffer[] buffer;
+
+    private volatile int readBuf = 0;
+    private int writeBuf = 1;
+
+    private final ReentrantLock writeLock;
+    private final Condition isFull;
 
     /**
      * A bounded, double buffered ("ping-pong buffer") blocking queue for transient
-     * storage of UDP packets. The queue is backed by two arrays with Datagram type
-     * and is built to be used by threads that might block.
+     * storage of UDP packets. The queue is backed by an array of two buffers, where
+     * the front buffer is read from and the back buffer is written to. The buffers
+     * are switched when the front is empty and the back is full.
      *
      * @param size sizes of the underlying arrays
      */
     public DatagramQueue(int size) {
-        this.bufferA = new DatagramBuffer(size);
-        this.bufferB = new DatagramBuffer(size);
+        this.buffer = new DatagramBuffer[2];
+        this.buffer[readBuf] = new DatagramBuffer(size);
+        this.buffer[writeBuf] = new DatagramBuffer(size);
+        this.writeLock = new ReentrantLock();
+        this.isFull = this.writeLock.newCondition();
     }
 
     // Primary Override methods
 
     @Override
     public Datagram take() throws InterruptedException {
-        return null;
+        Datagram temp = buffer[readBuf].take();
+        if (temp == null) {
+            isFull.await();
+            return buffer[readBuf].take();
+        }
+        return temp;
     }
 
+    /**
+     * Insert a new datagram at the head of the buffer. If the buffer is full,
+     * do a rotation by XORing the write/read indices. The next writeBuf can
+     * still have unprocessed elements if the readers are slower than the writers;
+     * ignore those elements and clear the buffer anyway.
+     *
+     * @param datagram the element to add
+     * @throws InterruptedException
+     */
     @Override
     public void put(Datagram datagram) throws InterruptedException {
-
+        writeLock.lockInterruptibly();
+        try {
+            if (buffer[writeBuf].isFull()) {
+                // Swap the buffers and clear the new writeBuffer just in case.
+                writeBuf ^= 1;
+                readBuf ^= 1;
+                buffer[writeBuf].clear();
+                // Signal any readers that there are new datagrams available
+                isFull.signal();
+            }
+            buffer[writeBuf].add(datagram);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
