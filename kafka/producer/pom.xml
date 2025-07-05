@@ -33,6 +33,7 @@
                         <argument>2</argument>
                         <argument>4</argument>
                         <argument>6001</argument>
+                        <argument>1024</argument>
                     </arguments>
                 </configuration>
             </plugin>
