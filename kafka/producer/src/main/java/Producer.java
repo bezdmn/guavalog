@@ -12,16 +12,26 @@ public class Producer {
 
     private final int nReaders;
     private final int nWriters;
+    private final int readPort;
 
-    public Producer(int nReaders, int nWriters, int readPort) {
-        this.nReaders = nReaders;
-        this.nWriters = nWriters;
+    public Producer(String[] args) {
+        if  (args.length != 3) {
+            this.nReaders = 1;
+            this.nWriters = 1;
+            this.readPort = 6006;
+        } else {
+            this.nReaders = Integer.parseInt(args[0]);
+            this.nWriters = Integer.parseInt(args[1]);
+            this.readPort = Integer.parseInt(args[2]);
+        }
+
         executorService = Executors.newFixedThreadPool(nReaders + nWriters);
         this.allocate(readPort);
     }
 
     public static void main(String[] args) {
-        Producer kafkaProducer = new Producer(2, 4, 1234);
+
+        Producer kafkaProducer = new Producer(args);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 readSocket.close();

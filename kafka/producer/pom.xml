@@ -30,7 +30,9 @@
                 <configuration>
                     <mainClass>Producer</mainClass>
                     <arguments>
-                        <argument>argument1</argument>
+                        <argument>2</argument>
+                        <argument>4</argument>
+                        <argument>6001</argument>
                     </arguments>
                 </configuration>
             </plugin>
