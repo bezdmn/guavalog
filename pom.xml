@@ -8,7 +8,7 @@
     <artifactId>Guavalog</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Source dedicated server log processor</name>
+    <name>Guavalog</name>
 
     <modules>
         <module>kafka/producer</module>

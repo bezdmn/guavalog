@@ -13,24 +13,29 @@ public class DatagramBuffer {
             pointer++;
             return true;
         }
-
         return false;
     }
 
     public Datagram take() {
         if (pointer > 0) {
             pointer--;
-
             return buf[pointer];
         }
-
         return null;
     }
 
-    public void clear() {
+    /**
+     * Reset the pointer to zero, effectively clearing the buffer.
+     *
+     * @return the number of elements still left in the buffer.
+     */
+    public int clear() {
+        int temp = pointer;
         pointer = 0;
+        return temp;
     }
 
+    public int size() { return buf.length; }
     public boolean isFull() {
         return pointer == buf.length;
     }
