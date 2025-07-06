@@ -17,6 +17,8 @@ public class Producer {
     private Reader[] readers;
     private Writer[] writers;
 
+    private KafkaProducer<String, String> producer;
+
     private static ExecutorService executorService;
     private static DatagramSocket readSocket;
 
@@ -35,12 +37,15 @@ public class Producer {
         config = new Properties(defaultConfig);
         config.put(ProducerConfig.CLIENT_ID_CONFIG, "TestProducer");
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put("acks", "all");
 
-        try (KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(config)){
+        // TODO: https://kafka.apache.org/10/documentation/streams/developer-guide/datatypes
+        // TODO: Write a custom (de)serializer for Datagrams; or use ByteBuffers
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
+        try (KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(config)){
+            this.producer = kafkaProducer;
         } catch (Exception e) {
             System.out.println("Error configuring producer: " + e.getMessage());
             Runtime.getRuntime().exit(1);
