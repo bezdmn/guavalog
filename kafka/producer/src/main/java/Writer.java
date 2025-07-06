@@ -1,5 +1,3 @@
-import java.net.DatagramSocket;
-
 public class Writer implements Runnable {
     private final DatagramQueue queue;
     private volatile boolean running;

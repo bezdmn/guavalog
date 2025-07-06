@@ -23,12 +23,12 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
      * are switched when the back is full, even if the front has elements remaining.
      * Reading from the queue is semi lock-free; writing to the queue is blocking.
      *
-     * @param size sizes of the underlying arrays
+     * @param bufferSize sizes of the underlying arrays
      */
-    public DatagramQueue(int size) {
+    public DatagramQueue(int bufferSize) {
         this.buffer = new DatagramBuffer[2];
-        this.buffer[readBuf] = new DatagramBuffer(size);
-        this.buffer[writeBuf] = new DatagramBuffer(size);
+        this.buffer[readBuf] = new DatagramBuffer(bufferSize);
+        this.buffer[writeBuf] = new DatagramBuffer(bufferSize);
         this.count = new AtomicInteger(0);
         this.writeLock = new ReentrantLock();
         this.isFull = this.writeLock.newCondition();
