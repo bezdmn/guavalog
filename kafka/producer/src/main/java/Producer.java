@@ -1,7 +1,4 @@
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.common.KafkaException;
-
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.DatagramSocket;
@@ -45,14 +42,14 @@ public class Producer {
             System.out.println("Error configuring producer: " + e.getMessage());
         }
 
-        int nThreads = Integer.valueOf(config.getProperty("num.readers")) + Integer.valueOf(config.getProperty("num.writers"));
+        int nThreads = Integer.parseInt(config.getProperty("numReaders")) + Integer.parseInt(config.getProperty("numWriters"));
         executorService = Executors.newFixedThreadPool(nThreads);
         this.allocate(
-                Integer.valueOf(config.getProperty("udpPort")),
-                Integer.valueOf(config.getProperty("bufferSize")),
-                Integer.valueOf(config.getProperty("packetSize")),
-                Integer.valueOf(config.getProperty("numReaders")),
-                Integer.valueOf(config.getProperty("numWriters"))
+                Integer.parseInt(config.getProperty("udpPort")),
+                Integer.parseInt(config.getProperty("bufferSize")),
+                Integer.parseInt(config.getProperty("packetSize")),
+                Integer.parseInt(config.getProperty("numReaders")),
+                Integer.parseInt(config.getProperty("numWriters"))
         );
     }
 
