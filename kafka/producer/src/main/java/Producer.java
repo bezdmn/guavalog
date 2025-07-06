@@ -40,6 +40,7 @@ public class Producer {
             kafkaProducer = new KafkaProducer<>(config);
         } catch (Exception e) {
             System.out.println("Error configuring producer: " + e.getMessage());
+            Runtime.getRuntime().exit(1);
         }
 
         int nThreads = Integer.parseInt(config.getProperty("numReaders")) + Integer.parseInt(config.getProperty("numWriters"));
@@ -128,7 +129,8 @@ public class Producer {
                 props.setProperty("udpPort", "65535");
                 props.setProperty("kafkaPort", "9092");
 
-                try (FileOutputStream fos = new FileOutputStream(configName)) {
+                String path = Producer.class.getClassLoader().getResource("").getPath() + "/" + configName;
+                try (FileOutputStream fos = new FileOutputStream(path)) {
                     props.storeToXML(fos, "");
                 } catch (Exception e2) {
                     System.out.println("Error writing configuration file: " + e2.getMessage());
