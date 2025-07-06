@@ -1,3 +1,6 @@
+// TODO: https://worldmodscode.wordpress.com/2012/12/14/the-java-bytebuffer-a-crash-course/
+
+
 public class DatagramBuffer {
     private final Datagram[] buf;
     private int pointer;

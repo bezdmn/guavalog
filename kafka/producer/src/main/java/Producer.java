@@ -1,17 +1,18 @@
-import org.apache.kafka.clients.producer.KafkaProducer;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class Producer {
-    private KafkaProducer<Integer, Datagram> kafkaProducer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
 
+public class Producer {
     private DatagramQueue queue;
     private Reader[] readers;
     private Writer[] writers;
@@ -31,13 +32,15 @@ public class Producer {
      * @param defaultConfig Options for the producer process
      */
     public Producer(Properties defaultConfig) {
-        this.config = new Properties(defaultConfig);
+        config = new Properties(defaultConfig);
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "TestProducer");
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put("acks", "all");
 
-        try {
-            config.setProperty("client.id", InetAddress.getLocalHost().getHostName());
-            config.setProperty("bootstrap.servers", "host1:9092");
-            config.setProperty("acks", "all");
-            kafkaProducer = new KafkaProducer<>(config);
+        try (KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(config)){
+
         } catch (Exception e) {
             System.out.println("Error configuring producer: " + e.getMessage());
             Runtime.getRuntime().exit(1);
@@ -105,37 +108,40 @@ public class Producer {
 
     public static Properties initialize(String[] args) {
         Properties props = new Properties();
-        String configName = "default.properties";
+        String defaultConf = "default.properties";
+        String path = Producer.class.getClassLoader().getResource("").getPath();
 
         if (args.length == 1) {
-            try (InputStream fis = Producer.class.getClassLoader().getResourceAsStream(args[0])) {
+            try (InputStream fis = new FileInputStream(path + args[0])) {
                 props.loadFromXML(fis);
+                return props;
             } catch (Exception e) {
                 System.out.println("Error parsing configuration file: " + e.getMessage());
                 System.out.println("Reading default configuration file...");
             }
-        } else {
-            try (InputStream fis = Producer.class.getClassLoader().getResourceAsStream(configName)) {
-                props.loadFromXML(fis);
-            } catch (Exception e) {
-                System.out.println("Error parsing default configuration file: " + e.getMessage());
-                System.out.println("Creating a new default configuration...");
+        }
 
-                /* Use default configuration parameters */
-                props.setProperty("numReaders", "1");
-                props.setProperty("numWriters", "1");
-                props.setProperty("packetSize", "1024");
-                props.setProperty("bufferSize", "512");
-                props.setProperty("udpPort", "65535");
-                props.setProperty("kafkaPort", "9092");
+        try (InputStream fis = new FileInputStream(path + defaultConf)) {
+            props.loadFromXML(fis);
+            return props;
+        } catch (Exception e) {
+            System.out.println("Error parsing default configuration file: " + e.getMessage());
+            System.out.println("Creating a new default configuration...");
+        }
 
-                String path = Producer.class.getClassLoader().getResource("").getPath() + "/" + configName;
-                try (FileOutputStream fos = new FileOutputStream(path)) {
-                    props.storeToXML(fos, "");
-                } catch (Exception e2) {
-                    System.out.println("Error writing configuration file: " + e2.getMessage());
-                }
-            }
+        /* Set the default configuration parameters and write them to file */
+
+        props.setProperty("numReaders", "1");
+        props.setProperty("numWriters", "1");
+        props.setProperty("packetSize", "1024");
+        props.setProperty("bufferSize", "512");
+        props.setProperty("udpPort", "65535");
+        props.setProperty("kafkaPort", "9092");
+
+        try (FileOutputStream fos = new FileOutputStream(path + defaultConf)) {
+            props.storeToXML(fos, "");
+        } catch (Exception e) {
+            System.out.println("Error writing configuration file: " + e.getMessage());
         }
 
         return props;
