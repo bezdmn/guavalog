@@ -1,16 +1,15 @@
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class DatagramQueue implements BlockingQueue<byte[]> {
     private final DatagramBuffer[] buffer;
     private final AtomicInteger count;
     private final ReentrantLock writeLock;
-    private final Condition isFull;
+    private final int parties;
+    private static CyclicBarrier barrier;
 
     /* Volatile readBuf avoids read-threads from caching the value after buffer swap */
     private volatile int readBuf = 0;
@@ -25,13 +24,14 @@ public class DatagramQueue implements BlockingQueue<byte[]> {
      *
      * @param bufferSize sizes of the underlying arrays
      */
-    public DatagramQueue(int bufferSize) {
+    public DatagramQueue(int bufferSize, int nWriters) {
         this.buffer = new DatagramBuffer[2];
         this.buffer[readBuf] = new DatagramBuffer(bufferSize);
         this.buffer[writeBuf] = new DatagramBuffer(bufferSize);
-        this.count = new AtomicInteger(0);
+        this.count = new AtomicInteger(bufferSize);
         this.writeLock = new ReentrantLock();
-        this.isFull = this.writeLock.newCondition();
+        this.parties = nWriters + 1;
+        barrier = new CyclicBarrier(parties);
     }
 
     // Primary Override methods
@@ -42,15 +42,19 @@ public class DatagramQueue implements BlockingQueue<byte[]> {
      * guarantee on the order they're read. Threads enter sleep after reading
      * all elements and wait for a reader thread to swap buffers and notify.
      *
-     * @return A datagram class object
+     * @return A byte array object
      * @throws InterruptedException The sleep can be interrupted by system
      */
     @Override
     public byte[] take() throws InterruptedException {
-        System.out.println("Count: "+ count.get());
         while (count.incrementAndGet() >= buffer[readBuf].size()) {
-            isFull.await();
+            try {
+                barrier.await();
+            } catch (BrokenBarrierException e) {
+
+            }
         }
+        //System.out.println("Count: " + count.get());
         /*while ((temp = buffer[readBuf].take()) == null) {
             isFull.await();
         }*/
@@ -77,7 +81,15 @@ public class DatagramQueue implements BlockingQueue<byte[]> {
                 // Reset count and buffer, signal all readers to continue
                 buffer[writeBuf].clear();
                 count.set(0);
-                isFull.signalAll();
+
+                /* This should be the last thread to break the barrier */
+                try {
+                    barrier.await(0, TimeUnit.SECONDS);
+                } catch (BrokenBarrierException e) {
+
+                } catch (TimeoutException e) {
+                    /* Not all reader threads have reached the barrier yet */
+                }
             }
             buffer[writeBuf].add(datagram);
         } finally {

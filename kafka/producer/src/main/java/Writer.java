@@ -31,7 +31,6 @@ public class Writer implements Runnable {
         byte[] payload = new byte[packetSize - headerSize];
         while (running) {
             try {
-                Thread.sleep(1000);
                 ByteBuffer packet = ByteBuffer.wrap(queue.take());
                 short sourcePort = packet.getShort(20);
                 for (int i = 0; i < 4; i++) { sourceAddrBytes[0] = packet.get(12 + i); }
@@ -40,6 +39,8 @@ public class Writer implements Runnable {
                 packet.get(payload, headerSize, packetSize - headerSize);
                 producer.send(new ProducerRecord<String, byte[]>(
                         "test-topic", sourceAddrStr, payload));
+            } catch (InterruptedException e) {
+                System.out.println("Writer interrupted");
             } catch (Exception e) {
                 System.out.println("WriterError: " + e.getMessage());
             }

@@ -3,7 +3,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.ByteBufferSerializer;
 import org.apache.kafka.common.serialization.BytesSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -63,7 +61,7 @@ public class Producer {
     }
 
     public void allocate(int udpPort, int bufferSize, int packetSize, int nReaders, int nWriters) {
-        this.queue = new DatagramQueue(bufferSize);
+        this.queue = new DatagramQueue(bufferSize, nWriters);
         this.readers = new Reader[nReaders];
         this.writers = new Writer[nWriters];
 
@@ -87,7 +85,6 @@ public class Producer {
         Producer kafkaProducer = new Producer(initialize(args));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                producer.close();
                 readSocket.close();
                 try {
                     if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
@@ -97,6 +94,7 @@ public class Producer {
                     executorService.shutdownNow();
                 }
                 System.out.println("Shutting down...");
+                producer.close();
             })
         );
 
