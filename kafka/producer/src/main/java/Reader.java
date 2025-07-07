@@ -18,12 +18,14 @@ public class Reader implements Runnable {
         if (socket == null) {
             return;
         }
+
+        byte[] buffer = new byte[packetSize];
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
         while (!socket.isClosed()) {
             try {
-                byte[] buffer = new byte[packetSize];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-                queue.add(new Datagram(packet, Instant.now()));
+                queue.add(buffer.clone());
             } catch (Exception e) {
                 System.out.println("ReadSocketError: " + e.getMessage());
                 socket.close();

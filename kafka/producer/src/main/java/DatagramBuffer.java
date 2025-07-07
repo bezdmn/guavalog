@@ -2,15 +2,15 @@
 
 
 public class DatagramBuffer {
-    private final Datagram[] buf;
+    private final byte[][] buf;
     private int pointer;
 
     public DatagramBuffer(int size) {
-        this.buf = new Datagram[size];
+        this.buf = new byte[size][];
         this.pointer = 0;
     }
 
-    public boolean add(Datagram d) {
+    public boolean add(byte[] d) {
         if (pointer < buf.length) {
             buf[pointer] = d;
             pointer++;
@@ -19,7 +19,7 @@ public class DatagramBuffer {
         return false;
     }
 
-    public Datagram take() {
+    public byte[] take() {
         if (pointer > 0) {
             pointer--;
             return buf[pointer];

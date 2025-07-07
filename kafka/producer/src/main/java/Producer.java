@@ -3,6 +3,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,6 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.ByteBufferSerializer;
+import org.apache.kafka.common.serialization.BytesSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 public class Producer {
@@ -17,8 +20,7 @@ public class Producer {
     private Reader[] readers;
     private Writer[] writers;
 
-    private KafkaProducer<String, String> producer;
-
+    private static KafkaProducer<String, byte[]> producer;
     private static ExecutorService executorService;
     private static DatagramSocket readSocket;
 
@@ -35,17 +37,15 @@ public class Producer {
      */
     public Producer(Properties defaultConfig) {
         config = new Properties(defaultConfig);
+        config.put("acks", "all");
+        config.put("retries", "0");
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, BytesSerializer.class);
         config.put(ProducerConfig.CLIENT_ID_CONFIG, "TestProducer");
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put("acks", "all");
 
-        // TODO: https://kafka.apache.org/10/documentation/streams/developer-guide/datatypes
-        // TODO: Write a custom (de)serializer for Datagrams; or use ByteBuffers
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-
-        try (KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(config)){
-            this.producer = kafkaProducer;
+        try {
+            producer = new KafkaProducer<>(config);
         } catch (Exception e) {
             System.out.println("Error configuring producer: " + e.getMessage());
             Runtime.getRuntime().exit(1);
@@ -78,7 +78,7 @@ public class Producer {
             this.readers[i] = new Reader(queue, readSocket, packetSize);
         }
         for (int i = 0; i < nWriters; i++) {
-            this.writers[i] = new Writer(queue);
+            this.writers[i] = new Writer(queue, producer, packetSize);
         }
     }
 
@@ -87,6 +87,7 @@ public class Producer {
         Producer kafkaProducer = new Producer(initialize(args));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                producer.close();
                 readSocket.close();
                 try {
                     if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {

@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DatagramQueue implements BlockingQueue<Datagram> {
+public class DatagramQueue implements BlockingQueue<byte[]> {
     private final DatagramBuffer[] buffer;
     private final AtomicInteger count;
     private final ReentrantLock writeLock;
@@ -46,7 +46,8 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
      * @throws InterruptedException The sleep can be interrupted by system
      */
     @Override
-    public Datagram take() throws InterruptedException {
+    public byte[] take() throws InterruptedException {
+        System.out.println("Count: "+ count.get());
         while (count.incrementAndGet() >= buffer[readBuf].size()) {
             isFull.await();
         }
@@ -66,7 +67,7 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
      * @throws InterruptedException method was interrupted by system
      */
     @Override
-    public void put(Datagram datagram) throws InterruptedException {
+    public void put(byte[] datagram) throws InterruptedException {
         writeLock.lock();
         try {
             if (buffer[writeBuf].isFull()) {
@@ -82,11 +83,6 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    @Override
-    public int remainingCapacity() {
-        return 0;
     }
 
     @Override
@@ -107,43 +103,48 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
     // Secondary Override methods
 
     @Override
-    public boolean add(Datagram datagram) {
+    public byte[] poll(long timeout, TimeUnit unit) throws InterruptedException {
+        return new byte[0];
+    }
+
+    @Override
+    public boolean add(byte[] bytes) {
         return false;
     }
 
     @Override
-    public boolean offer(Datagram datagram) {
+    public boolean offer(byte[] bytes) {
         return false;
     }
 
     @Override
-    public Datagram remove() {
-        return null;
+    public byte[] remove() {
+        return new byte[0];
     }
 
     @Override
-    public Datagram poll() {
-        return null;
+    public byte[] poll() {
+        return new byte[0];
     }
 
     @Override
-    public Datagram element() {
-        return null;
+    public byte[] element() {
+        return new byte[0];
     }
 
     @Override
-    public Datagram peek() {
-        return null;
+    public byte[] peek() {
+        return new byte[0];
     }
 
     @Override
-    public boolean offer(Datagram datagram, long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean offer(byte[] bytes, long timeout, TimeUnit unit) throws InterruptedException {
         return false;
     }
 
     @Override
-    public Datagram poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
+    public int remainingCapacity() {
+        return 0;
     }
 
     @Override
@@ -157,7 +158,7 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
     }
 
     @Override
-    public boolean addAll(Collection<? extends Datagram> c) {
+    public boolean addAll(Collection<? extends byte[]> c) {
         return false;
     }
 
@@ -177,7 +178,7 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
     }
 
     @Override
-    public Iterator<Datagram> iterator() {
+    public Iterator<byte[]> iterator() {
         return null;
     }
 
@@ -192,12 +193,13 @@ public class DatagramQueue implements BlockingQueue<Datagram> {
     }
 
     @Override
-    public int drainTo(Collection<? super Datagram> c) {
+    public int drainTo(Collection<? super byte[]> c) {
         return 0;
     }
 
     @Override
-    public int drainTo(Collection<? super Datagram> c, int maxElements) {
+    public int drainTo(Collection<? super byte[]> c, int maxElements) {
         return 0;
     }
+
 }
