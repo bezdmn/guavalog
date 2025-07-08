@@ -8,18 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.BytesSerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
-
 public class Producer {
     private DatagramQueue queue;
     private Reader[] readers;
     private Writer[] writers;
 
-    private static KafkaProducer<String, byte[]> producer;
     private static ExecutorService executorService;
+
     private static DatagramSocket readSocket;
 
     private Properties config;
@@ -35,19 +30,6 @@ public class Producer {
      */
     public Producer(Properties defaultConfig) {
         config = new Properties(defaultConfig);
-        config.put("acks", "all");
-        config.put("retries", "0");
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, BytesSerializer.class);
-        config.put(ProducerConfig.CLIENT_ID_CONFIG, "TestProducer");
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-
-        try {
-            producer = new KafkaProducer<>(config);
-        } catch (Exception e) {
-            System.out.println("Error configuring producer: " + e.getMessage());
-            Runtime.getRuntime().exit(1);
-        }
 
         int nThreads = Integer.parseInt(config.getProperty("numReaders")) + Integer.parseInt(config.getProperty("numWriters"));
         executorService = Executors.newFixedThreadPool(nThreads);
@@ -76,7 +58,7 @@ public class Producer {
             this.readers[i] = new Reader(queue, readSocket, packetSize);
         }
         for (int i = 0; i < nWriters; i++) {
-            this.writers[i] = new Writer(queue, producer, packetSize);
+            this.writers[i] = new Writer(queue, config);
         }
     }
 
@@ -94,7 +76,6 @@ public class Producer {
                     executorService.shutdownNow();
                 }
                 System.out.println("Shutting down...");
-                producer.close();
             })
         );
 

@@ -1,28 +1,56 @@
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.serialization.BytesSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.util.Properties;
 
 public class Writer implements Runnable {
     private final DatagramQueue queue;
     private KafkaProducer<String, byte[]> producer;
-    private int packetSize;
 
-    private volatile boolean running;
     /* IPv4 + UDP header size */
-    private static int headerSize = 28;
+    private final int headerSize = 28;
+    private static int nWriters = 0;
+    private int packetSize;
+    private volatile boolean running;
 
-    public Writer(DatagramQueue queue, KafkaProducer<String, byte[]> producer, int packetSize) {
+    public Writer(DatagramQueue queue, Properties config) {
         this.queue = queue;
-        this.producer = producer;
-        this.packetSize = packetSize;
         this.running = true;
+
+        nWriters++;
+
+        if (nWriters == 1) {
+            this.init(config);
+        }
+    }
+
+    private void init(Properties config) {
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, BytesSerializer.class);
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, "TestProducer");
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put("acks", "all");
+        config.put("retries", "0");
+
+        try {
+            producer = new KafkaProducer<>(config);
+        } catch (KafkaException e) {
+            System.out.println("Error configuring producer: " + e.getMessage());
+            Runtime.getRuntime().exit(1);
+        }
+
+        this.packetSize = Integer.parseInt(config.getProperty("packetSize"));
     }
 
     public void stop() {
         this.running = false;
+        producer.close();
     }
 
     @Override
