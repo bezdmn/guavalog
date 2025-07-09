@@ -10,9 +10,7 @@ public class Producer {
     private DatagramQueue queue;
     private Reader[] readers;
     private Writer[] writers;
-
     private static ExecutorService executorService;
-
     private Properties config;
 
     /**

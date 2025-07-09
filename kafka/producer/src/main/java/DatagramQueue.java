@@ -10,7 +10,6 @@ public class DatagramQueue implements BlockingQueue<byte[]> {
     private final ReentrantLock writeLock;
     private final int parties;
     private static CyclicBarrier barrier;
-
     /* Volatile readBuf avoids read-threads from caching the value after buffer swap */
     private volatile int readBuf = 0;
     private int writeBuf = 1;

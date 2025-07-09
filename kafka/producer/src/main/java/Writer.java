@@ -12,12 +12,10 @@ import java.util.Properties;
 public class Writer implements Runnable {
     private final DatagramQueue queue;
     private KafkaProducer<String, byte[]> producer;
-
-    /* IPv4 + UDP header size */
-    private final int headerSize = 28;
-    private static int nWriters = 0;
     private int packetSize;
     private volatile boolean running;
+    private final int headerSize = 28; // IPv4 + UDP header size
+    private static int nWriters = 0;
 
     public Writer(DatagramQueue queue, Properties config) {
         this.queue = queue;
