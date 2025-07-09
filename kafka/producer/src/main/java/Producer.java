@@ -1,8 +1,6 @@
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.DatagramSocket;
-import java.net.SocketException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,8 +12,6 @@ public class Producer {
     private Writer[] writers;
 
     private static ExecutorService executorService;
-
-    private static DatagramSocket readSocket;
 
     private Properties config;
 
@@ -47,15 +43,8 @@ public class Producer {
         this.readers = new Reader[nReaders];
         this.writers = new Writer[nWriters];
 
-        try {
-            readSocket = new DatagramSocket(udpPort);
-        } catch (SocketException e) {
-            System.out.println("SocketError: " + e.getMessage());
-            Runtime.getRuntime().exit(1);
-        }
-
         for (int i = 0; i < nReaders; i++) {
-            this.readers[i] = new Reader(queue, readSocket, packetSize);
+            this.readers[i] = new Reader(queue, config);
         }
         for (int i = 0; i < nWriters; i++) {
             this.writers[i] = new Writer(queue, config);
@@ -67,7 +56,6 @@ public class Producer {
         Producer kafkaProducer = new Producer(initialize(args));
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                readSocket.close();
                 try {
                     if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
                         executorService.shutdownNow();
