@@ -48,7 +48,7 @@ public class DatagramQueue implements BlockingQueue<byte[]> {
      */
     @Override
     public byte[] take() throws InterruptedException {
-        while (count.incrementAndGet() >= buffer[readBuf].size()) {
+        while (count.incrementAndGet() >= buffer[readBuf].capacity()) {
             try {
                 barrier.await();
             } catch (BrokenBarrierException e) {

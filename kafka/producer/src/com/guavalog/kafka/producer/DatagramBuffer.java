@@ -39,7 +39,8 @@ public class DatagramBuffer {
         return temp;
     }
 
-    public int size() { return buf.length; }
+    public int size() { return pointer; }
+    public int capacity() { return buf.length; }
     public boolean isFull() {
         return pointer == buf.length;
     }
