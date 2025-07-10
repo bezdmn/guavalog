@@ -31,7 +31,7 @@ public class DatagramBufferTest {
         }
 
         assertTrue(buf.isFull());
-        assertFalse(buf.add(testByte));
+        assertFalse("Adding to a full buffer fails", buf.add(testByte));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class DatagramBufferTest {
         assertNotEquals(null, buf.take());
 
         assertEquals(0, buf.size());
-        assertNull(buf.take());
+        assertNull("Empty buffer returns null on take", buf.take());
     }
 
     @Test
