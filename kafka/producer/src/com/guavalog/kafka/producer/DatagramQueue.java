@@ -1,3 +1,5 @@
+package com.guavalog.kafka.producer;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.*;

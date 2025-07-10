@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="kafka-producer:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/kafka_producer_jar</output-path>
-    <root id="archive" name="Producer.jar">
-      <element id="module-output" name="kafka-producer" />
-    </root>
-  </artifact>
-</component>

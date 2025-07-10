@@ -1,3 +1,5 @@
+package com.guavalog.kafka.producer;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -66,7 +68,7 @@ public class Writer implements Runnable {
                 producer.send(new ProducerRecord<String, byte[]>(
                         "test-topic", sourceAddrStr, payload));
             } catch (InterruptedException e) {
-                System.out.println("Writer interrupted");
+                System.out.println("com.guavalog.kafka.producer.Writer interrupted");
             } catch (Exception e) {
                 System.out.println("WriterError: " + e.getMessage());
             }

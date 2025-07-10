@@ -21,9 +21,23 @@
             <artifactId>kafka-clients</artifactId>
             <version>4.0.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/junit/junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -37,7 +51,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>Producer</mainClass>
+                    <mainClass>com.guavalog.kafka.producer.Producer</mainClass>
                     <arguments>
                         <argument>2</argument>
                         <argument>4</argument>

@@ -3,8 +3,10 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/kafka/consumer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kafka/consumer/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/kafka/producer/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/kafka/producer/src" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/kafka/producer/src/com/guavalog/kafka" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/kafka/producer/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/kafka/producer/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/producer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/producer/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />

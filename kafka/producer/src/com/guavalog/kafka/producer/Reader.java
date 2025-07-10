@@ -1,3 +1,5 @@
+package com.guavalog.kafka.producer;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -17,7 +19,7 @@ public class Reader implements Runnable {
             this.socket = socket;
         } catch (SocketException e) {
             System.out.println("SocketException: " + e.getMessage());
-            /* Reader thread is created but non-functioning */
+            /* com.guavalog.kafka.producer.Reader thread is created but non-functioning */
         }
 
         numReaders++;
@@ -46,7 +48,7 @@ public class Reader implements Runnable {
             } catch (SocketException e) {
                 System.out.println("SocketException: " + e.getMessage());
             } catch (Exception e) {
-                System.out.println("Reader error: " + e.getMessage());
+                System.out.println("com.guavalog.kafka.producer.Reader error: " + e.getMessage());
                 socket.close();
             }
         }
